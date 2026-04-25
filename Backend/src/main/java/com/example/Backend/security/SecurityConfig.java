@@ -24,10 +24,10 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable()) // Disable CSRF for APIs
             .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/api/auth/**", "/error").permitAll() // Still open for Login/Register
-            // Example of a restricted route:
-            .requestMatchers("/api/admin/**").hasRole("SUPER_ADMIN") 
-            .anyRequest().authenticated() 
+            .requestMatchers("/api/auth/**", "/error").permitAll()
+            .requestMatchers("/graphql", "/graphiql/**", "/subscriptions").permitAll()
+            .requestMatchers("/api/admin/**").hasRole("SUPER_ADMIN")
+            .anyRequest().authenticated()
                 )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .exceptionHandling(ex -> ex

@@ -1,0 +1,410 @@
+# ============================================================
+# Enums
+# ============================================================
+
+enum Role {
+  SUPER_ADMIN
+  WAREHOUSE_MANAGER
+  BRANCH_MANAGER
+  CASHIER
+  CUSTOMER
+}
+
+enum TransferOrderStatus {
+  PENDING
+  DISPATCHED
+  RECEIVED
+}
+
+enum OrderStatus {
+  PLACED
+  PROCESSING
+  READY
+  OUT_FOR_DELIVERY
+  DELIVERED
+}
+
+enum WastageReason {
+  EXPIRED
+  DAMAGED
+  THEFT
+}
+
+enum PaymentType {
+  CASH
+  MOCK_WALLET
+}
+
+enum OrderType {
+  PICKUP
+  DELIVERY
+}
+
+# ============================================================
+# Types
+# ============================================================
+
+type User {
+  id: ID!
+  email: String!
+  name: String
+  role: Role
+  mockWalletBalance: Float
+}
+
+type Product {
+  id: ID!
+  sku: String!
+  name: String
+  category: String
+  unitOfMeasurement: String
+  nutritionalInfo: String
+  basePrice: Float
+  isArchived: Boolean
+  batches: [Batch]
+}
+
+type Batch {
+  id: ID!
+  batchNumber: String
+  productId: ID!
+  quantity: Int
+  receivedDate: String
+  expiryDate: String
+  costPrice: Float
+  product: Product
+}
+
+type Branch {
+  id: ID!
+  name: String
+  address: String
+  managerId: ID
+  latitude: Float
+  longitude: Float
+  manager: User
+}
+
+type Warehouse {
+  id: ID!
+  name: String
+  address: String
+  managerId: ID
+  manager: User
+}
+
+type Vendor {
+  id: ID!
+  name: String
+  contactEmail: String
+  contactPhone: String
+  leadTimeDays: Int
+  suppliedProductIds: [ID]
+}
+
+type OrderItem {
+  productId: ID
+  batchId: ID
+  quantity: Int
+}
+
+type TransferOrder {
+  id: ID!
+  warehouseId: ID!
+  branchId: ID!
+  items: [OrderItem]
+  estimatedDeliveryDate: String
+  status: TransferOrderStatus
+  createdAt: String
+  dispatchedAt: String
+  receivedAt: String
+  branch: Branch
+  warehouse: Warehouse
+}
+
+type OrderLineItem {
+  productId: ID
+  batchId: ID
+  quantity: Int
+  unitPrice: Float
+}
+
+type Order {
+  id: ID!
+  customerId: ID!
+  branchId: ID!
+  items: [OrderLineItem]
+  totalAmount: Float
+  status: OrderStatus
+  paymentType: PaymentType
+  orderType: OrderType
+  deliveryAddress: String
+  createdAt: String
+  customer: User
+  branch: Branch
+}
+
+type WastageReport {
+  id: ID!
+  branchId: ID!
+  batchId: ID!
+  productId: ID!
+  quantity: Int
+  reason: WastageReason
+  reportedBy: ID
+  reportedAt: String
+  product: Product
+}
+
+type ScanLog {
+  id: ID!
+  branchId: ID
+  productId: ID
+  batchId: ID
+  scannedBy: ID
+  action: String
+  scannedAt: String
+}
+
+type Notification {
+  id: ID!
+  userId: ID!
+  productId: ID
+  message: String
+  discountPct: Float
+  sentAt: String
+  isRead: Boolean
+  isConverted: Boolean
+}
+
+type BranchInventory {
+  id: ID!
+  branchId: ID!
+  productId: ID!
+  batchId: ID!
+  onShelfQty: Int
+  backroomQty: Int
+}
+
+type CartItem {
+  productId: ID
+  batchId: ID
+  sku: String
+  quantity: Int
+  unitPrice: Float
+}
+
+type Cart {
+  id: ID!
+  branchId: ID!
+  items: [CartItem]
+  totalAmount: Float
+}
+
+type Receipt {
+  orderId: ID
+  totalAmount: Float
+  paymentType: PaymentType
+  items: [CartItem]
+  createdAt: String
+}
+
+type AuthPayload {
+  token: String!
+  email: String!
+  role: String!
+}
+
+# ============================================================
+# Input types
+# ============================================================
+
+input RegisterInput {
+  name: String!
+  email: String!
+  password: String!
+  role: Role
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+input ProductInput {
+  sku: String
+  name: String!
+  category: String
+  unitOfMeasurement: String
+  nutritionalInfo: String
+  basePrice: Float
+}
+
+input BatchInput {
+  batchNumber: String!
+  productId: ID!
+  quantity: Int!
+  receivedDate: String
+  expiryDate: String!
+  costPrice: Float
+}
+
+input BranchInput {
+  name: String!
+  address: String
+  managerId: ID
+  latitude: Float
+  longitude: Float
+}
+
+input WarehouseInput {
+  name: String!
+  address: String
+  managerId: ID
+}
+
+input VendorInput {
+  name: String!
+  contactEmail: String
+  contactPhone: String
+  leadTimeDays: Int
+  suppliedProductIds: [ID]
+}
+
+input OrderItemInput {
+  productId: ID!
+  batchId: ID!
+  quantity: Int!
+}
+
+input TransferOrderInput {
+  warehouseId: ID!
+  branchId: ID!
+  items: [OrderItemInput!]!
+  estimatedDeliveryDate: String
+}
+
+input OrderLineItemInput {
+  productId: ID!
+  batchId: ID!
+  quantity: Int!
+}
+
+input OrderInput {
+  customerId: ID!
+  branchId: ID!
+  items: [OrderLineItemInput!]!
+  paymentType: PaymentType!
+  orderType: OrderType!
+  deliveryAddress: String
+}
+
+input WastageInput {
+  branchId: ID!
+  batchId: ID!
+  productId: ID!
+  quantity: Int!
+  reason: WastageReason!
+}
+
+# ============================================================
+# Root operations
+# ============================================================
+
+type Query {
+  # Auth
+  me: User
+
+  # Users
+  user(id: ID!): User
+  users(role: Role, page: Int, limit: Int): [User]
+
+  # Products
+  product(id: ID!): Product
+  productBySku(sku: String!): Product
+  products(category: String, page: Int, limit: Int): [Product]
+  searchProducts(query: String!, branchId: ID): [Product]
+
+  # Batches
+  batch(id: ID!): Batch
+  batches(productId: ID!): [Batch]
+  batchesByExpiry(daysUntilExpiry: Int!): [Batch]
+
+  # Branches
+  branch(id: ID!): Branch
+  branches: [Branch]
+  nearestBranches(lat: Float!, lng: Float!, radiusKm: Float!): [Branch]
+
+  # Warehouses
+  warehouse(id: ID!): Warehouse
+  warehouses: [Warehouse]
+
+  # Vendors
+  vendor(id: ID!): Vendor
+  vendors: [Vendor]
+
+  # Transfer Orders
+  transferOrder(id: ID!): TransferOrder
+  transferOrders(status: TransferOrderStatus, branchId: ID, warehouseId: ID): [TransferOrder]
+
+  # Orders
+  order(id: ID!): Order
+  myOrders(userId: ID!, page: Int, limit: Int): [Order]
+
+  # Branch Inventory
+  branchInventory(branchId: ID!): [BranchInventory]
+
+  # Wastage
+  wastageByBranch(branchId: ID!, dateRangeStart: String, dateRangeEnd: String): [WastageReport]
+
+  # Notifications
+  notifications(userId: ID!): [Notification]
+}
+
+type Mutation {
+  # Auth (also available via REST /api/auth)
+  register(input: RegisterInput!): AuthPayload
+  login(input: LoginInput!): AuthPayload
+
+  # Products
+  createProduct(input: ProductInput!): Product
+  updateProduct(id: ID!, input: ProductInput!): Product
+  archiveProduct(id: ID!): Product
+  setPromotion(productId: ID!, discountPct: Float!, expiresAt: String!): Product
+
+  # Batches
+  createBatch(input: BatchInput!): Batch
+
+  # Branches
+  createBranch(input: BranchInput!): Branch
+  updateBranch(id: ID!, input: BranchInput!): Branch
+
+  # Warehouses
+  createWarehouse(input: WarehouseInput!): Warehouse
+
+  # Vendors
+  createVendor(input: VendorInput!): Vendor
+  updateVendor(id: ID!, input: VendorInput!): Vendor
+
+  # Transfer Orders
+  createTransferOrder(input: TransferOrderInput!): TransferOrder
+  dispatchTransferOrder(id: ID!): TransferOrder
+  receiveTransferOrder(id: ID!): TransferOrder
+
+  # Orders
+  createOrder(input: OrderInput!): Order
+  updateOrderStatus(id: ID!, status: OrderStatus!): Order
+
+  # Wastage
+  reportWastage(input: WastageInput!): WastageReport
+
+  # POS
+  createCart(branchId: ID!): Cart
+  addItemToCart(cartId: ID!, sku: String!, quantity: Int!): Cart
+  checkoutCart(cartId: ID!, paymentType: PaymentType!): Receipt
+  moveToShelf(branchId: ID!, batchId: ID!, quantity: Int!): BranchInventory
+}
+
+type Subscription {
+  subscribeOrderStatus(orderId: ID!): Order
+}
