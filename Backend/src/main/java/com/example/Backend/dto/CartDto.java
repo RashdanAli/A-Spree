@@ -1,6 +1,5 @@
 package com.example.Backend.dto;
 
-import com.example.Backend.Models.PaymentType;
 import lombok.Data;
 
 import java.util.List;
