@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
@@ -33,14 +32,16 @@ public class JwtFilter extends OncePerRequestFilter {
         if (authorizationHeader == null) {
             System.out.println("[JwtFilter] No Authorization header found");
         } else if (!authorizationHeader.startsWith("Bearer ")) {
-            System.out.println("[JwtFilter] Authorization header does not start with 'Bearer ': " + authorizationHeader);
+            System.out
+                    .println("[JwtFilter] Authorization header does not start with 'Bearer ': " + authorizationHeader);
         } else {
             jwt = authorizationHeader.substring(7);
             try {
                 email = jwtUtil.extractEmail(jwt);
                 System.out.println("[JwtFilter] Token parsed successfully, email: " + email);
             } catch (Exception e) {
-                System.out.println("[JwtFilter] Token parsing failed: " + e.getClass().getSimpleName() + " - " + e.getMessage());
+                System.out.println(
+                        "[JwtFilter] Token parsing failed: " + e.getClass().getSimpleName() + " - " + e.getMessage());
             }
         }
 
@@ -49,22 +50,23 @@ public class JwtFilter extends OncePerRequestFilter {
             boolean valid = jwtUtil.validateToken(jwt, email);
             System.out.println("[JwtFilter] validateToken result for " + email + ": " + valid);
             if (valid) {
-    // 1. Extract the role string from the token claims
+                // 1. Extract the role string from the token claims
                 String role = jwtUtil.extractClaim(jwt, claims -> claims.get("role", String.class));
-    
-    // 2. Convert it to a Spring Authority (Spring usually expects "ROLE_" prefix)
-                org.springframework.security.core.authority.SimpleGrantedAuthority authority = 
-                new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_" + role);
-    
-    // 3. Create the auth token with the authority list
+
+                // 2. Convert it to a Spring Authority (Spring usually expects "ROLE_" prefix)
+                org.springframework.security.core.authority.SimpleGrantedAuthority authority = new org.springframework.security.core.authority.SimpleGrantedAuthority(
+                        "ROLE_" + role);
+
+                // 3. Create the auth token with the authority list
                 UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                    email, null, java.util.Collections.singletonList(authority));
+                        email, null, java.util.Collections.singletonList(authority));
 
                 auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-                // Spring Security 6+: must set a new context object, not mutate the existing one
-                org.springframework.security.core.context.SecurityContext context =
-                    SecurityContextHolder.createEmptyContext();
+                // Spring Security 6+: must set a new context object, not mutate the existing
+                // one
+                org.springframework.security.core.context.SecurityContext context = SecurityContextHolder
+                        .createEmptyContext();
                 context.setAuthentication(auth);
                 SecurityContextHolder.setContext(context);
             }

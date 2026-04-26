@@ -2,7 +2,6 @@ package com.example.Backend.graphql.resolvers;
 
 import com.example.Backend.Models.Branch;
 import com.example.Backend.Models.Order;
-import com.example.Backend.Models.OrderStatus;
 import com.example.Backend.Models.User;
 import com.example.Backend.repositories.BranchRepository;
 import com.example.Backend.repositories.OrderRepository;
@@ -15,7 +14,6 @@ import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;

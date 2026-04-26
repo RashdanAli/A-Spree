@@ -11,7 +11,6 @@ import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,8 +43,7 @@ public class BranchResolver {
         double lngDelta = radiusKm / (111.0 * Math.cos(Math.toRadians(lat)));
         return branchRepository.findByLatitudeBetweenAndLongitudeBetween(
                 lat - latDelta, lat + latDelta,
-                lng - lngDelta, lng + lngDelta
-        );
+                lng - lngDelta, lng + lngDelta);
     }
 
     @MutationMapping
