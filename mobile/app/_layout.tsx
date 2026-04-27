@@ -6,20 +6,41 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 
+import { ApolloProvider } from '@apollo/client/react';
+import { apolloClient } from '../services/api';
+import { AuthProvider, useAuth } from '../hooks/useAuth';
+
 import { useColorScheme } from '@/components/useColorScheme';
 
 export {
-  // Catch any errors thrown by the Layout component.
   ErrorBoundary,
 } from 'expo-router';
 
 export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: '(tabs)',
+  initialRouteName: '(auth)',
 };
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
+
+function RootNavigator() {
+  const { isAuthenticated } = useAuth();
+  const colorScheme = useColorScheme();
+
+  return (
+    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <Stack>
+        {isAuthenticated ? (
+          <>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+          </>
+        ) : (
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+        )}
+      </Stack>
+    </ThemeProvider>
+  );
+}
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
@@ -27,7 +48,6 @@ export default function RootLayout() {
     ...FontAwesome.font,
   });
 
-  // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
     if (error) throw error;
   }, [error]);
@@ -42,18 +62,11 @@ export default function RootLayout() {
     return null;
   }
 
-  return <RootLayoutNav />;
-}
-
-function RootLayoutNav() {
-  const colorScheme = useColorScheme();
-
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-      </Stack>
-    </ThemeProvider>
+    <ApolloProvider client={apolloClient}>
+      <AuthProvider>
+        <RootNavigator />
+      </AuthProvider>
+    </ApolloProvider>
   );
 }
