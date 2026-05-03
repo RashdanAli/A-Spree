@@ -37,11 +37,13 @@ const navItems: NavItem[] = [
 const sectionTitles: Record<string, string> = {
   'Dashboard': 'Main',
   'Products': 'Inventory',
+  'Batch Management': 'Inventory',
   'Branch Inventory': 'Inventory',
   'Orders': 'Operations',
   'Transfer Orders': 'Operations',
   'POS Terminal': 'Operations',
   'Wastage & Returns': 'Operations',
+  'Scan Logs': 'Operations',
   'Branches': 'Master Data',
   'Warehouses': 'Master Data',
   'Vendors': 'Master Data',
