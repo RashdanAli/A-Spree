@@ -38,7 +38,13 @@ public class WarehouseResolver {
 
     @MutationMapping
     public Warehouse createWarehouse(@Argument Map<String, Object> input) {
-        return null;
+        Warehouse warehouse = new Warehouse();
+        warehouse.setName((String) input.get("name"));
+        warehouse.setAddress((String) input.get("address"));
+        if (input.get("managerId") != null) {
+            warehouse.setManagerId((String) input.get("managerId"));
+        }
+        return warehouseRepository.save(warehouse);
     }
 
     // DataLoader: resolves Warehouse.manager for a list of warehouses in one query

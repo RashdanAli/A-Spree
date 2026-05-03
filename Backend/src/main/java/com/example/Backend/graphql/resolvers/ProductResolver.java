@@ -10,6 +10,8 @@ import org.springframework.graphql.data.method.annotation.BatchMapping;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
+import com.example.Backend.services.ProductService;
+import com.example.Backend.services.PricingService;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -26,6 +28,12 @@ public class ProductResolver {
     @Autowired
     private BatchRepository batchRepository;
 
+    @Autowired
+    private ProductService productService;
+
+    @Autowired
+    private PricingService pricingService;
+
     @QueryMapping
     public Product product(@Argument String id) {
         return productRepository.findById(id).orElse(null);
@@ -38,7 +46,7 @@ public class ProductResolver {
 
     @QueryMapping
     public List<Product> products(@Argument String category, @Argument Integer page, @Argument Integer limit) {
-        return Collections.emptyList();
+        return productService.getProducts(category, page, limit);
     }
 
     @QueryMapping
@@ -48,22 +56,22 @@ public class ProductResolver {
 
     @MutationMapping
     public Product createProduct(@Argument Map<String, Object> input) {
-        return null;
+        return productService.createProduct(input);
     }
 
     @MutationMapping
     public Product updateProduct(@Argument String id, @Argument Map<String, Object> input) {
-        return null;
+        return productService.updateProduct(id, input);
     }
 
     @MutationMapping
     public Product archiveProduct(@Argument String id) {
-        return null;
+        return productService.archiveProduct(id);
     }
 
     @MutationMapping
     public Product setPromotion(@Argument String productId, @Argument Double discountPct, @Argument String expiresAt) {
-        return null;
+        return pricingService.setPromotion(productId, discountPct, expiresAt);
     }
 
     // DataLoader: resolves Product.batches for a list of products in one query

@@ -60,6 +60,10 @@ type Product {
   unitOfMeasurement: String
   nutritionalInfo: String
   basePrice: Float
+  markupPct: Float
+  discountPct: Float
+  promotionExpiresAt: String
+  effectivePrice: Float
   isArchived: Boolean
   batches: [Batch]
 }
@@ -385,6 +389,7 @@ type Mutation {
   # Vendors
   createVendor(input: VendorInput!): Vendor
   updateVendor(id: ID!, input: VendorInput!): Vendor
+  deleteVendor(id: ID!): Boolean
 
   # Transfer Orders
   createTransferOrder(input: TransferOrderInput!): TransferOrder

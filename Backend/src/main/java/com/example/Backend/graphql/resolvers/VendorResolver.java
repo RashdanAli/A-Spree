@@ -7,6 +7,7 @@ import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
+import com.example.Backend.services.VendorService;
 
 import java.util.List;
 import java.util.Map;
@@ -27,13 +28,21 @@ public class VendorResolver {
         return vendorRepository.findAll();
     }
 
+    @Autowired
+    private VendorService vendorService;
+
     @MutationMapping
     public Vendor createVendor(@Argument Map<String, Object> input) {
-        return null;
+        return vendorService.createVendor(input);
     }
 
     @MutationMapping
     public Vendor updateVendor(@Argument String id, @Argument Map<String, Object> input) {
-        return null;
+        return vendorService.updateVendor(id, input);
+    }
+
+    @MutationMapping
+    public boolean deleteVendor(@Argument String id) {
+        return vendorService.deleteVendor(id);
     }
 }

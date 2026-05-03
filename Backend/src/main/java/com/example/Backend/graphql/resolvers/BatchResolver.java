@@ -10,8 +10,8 @@ import org.springframework.graphql.data.method.annotation.BatchMapping;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
+import com.example.Backend.services.BatchService;
 
-import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +27,9 @@ public class BatchResolver {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private BatchService batchService;
+
     @QueryMapping
     public Batch batch(@Argument String id) {
         return batchRepository.findById(id).orElse(null);
@@ -39,13 +42,12 @@ public class BatchResolver {
 
     @QueryMapping
     public List<Batch> batchesByExpiry(@Argument Integer daysUntilExpiry) {
-        LocalDate cutoff = LocalDate.now().plusDays(daysUntilExpiry);
-        return batchRepository.findByExpiryDateBetween(LocalDate.now(), cutoff);
+        return batchService.getBatchesByExpiry(daysUntilExpiry);
     }
 
     @MutationMapping
     public Batch createBatch(@Argument Map<String, Object> input) {
-        return null;
+        return batchService.createBatch(input);
     }
 
     // DataLoader: resolves Batch.product for a list of batches in one query
