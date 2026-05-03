@@ -26,4 +26,7 @@ public class Batch {
     private LocalDate expiryDate;
 
     private Double costPrice;
+    
+    private boolean isExpiringIn7Days = false;
+    private boolean isExpiringIn3Days = false;
 }

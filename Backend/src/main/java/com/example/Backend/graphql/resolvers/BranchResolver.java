@@ -48,12 +48,27 @@ public class BranchResolver {
 
     @MutationMapping
     public Branch createBranch(@Argument Map<String, Object> input) {
-        return null;
+        Branch branch = new Branch();
+        mapBranchInput(branch, input);
+        return branchRepository.save(branch);
     }
 
     @MutationMapping
     public Branch updateBranch(@Argument String id, @Argument Map<String, Object> input) {
-        return null;
+        Branch branch = branchRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Branch not found with id: " + id));
+        mapBranchInput(branch, input);
+        return branchRepository.save(branch);
+    }
+
+    private void mapBranchInput(Branch branch, Map<String, Object> input) {
+        if (input.containsKey("name")) branch.setName((String) input.get("name"));
+        if (input.containsKey("address")) branch.setAddress((String) input.get("address"));
+        if (input.containsKey("managerId")) branch.setManagerId((String) input.get("managerId"));
+        if (input.containsKey("latitude") && input.get("latitude") != null)
+            branch.setLatitude(((Number) input.get("latitude")).doubleValue());
+        if (input.containsKey("longitude") && input.get("longitude") != null)
+            branch.setLongitude(((Number) input.get("longitude")).doubleValue());
     }
 
     // DataLoader: resolves Branch.manager for a list of branches in one query

@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Recurse \"C:\\\\Users\\\\Rashdan\\\\Desktop\\\\Retail Management\\\\Aspree-Implementation\\\\Backend\\\\src\\\\main\\\\java\\\\com\\\\example\\\\Backend\" -File)",
+      "Bash(Select-Object FullName)",
+      "Bash(Sort-Object FullName)",
+      "PowerShell(Get-ChildItem -Recurse \"C:\\\\Users\\\\Rashdan\\\\Desktop\\\\Retail Management\\\\Aspree-Implementation\\\\Backend\\\\src\\\\main\\\\java\\\\com\\\\example\\\\Backend\" -File | Select-Object FullName | Sort-Object FullName | ForEach-Object { $_.FullName })"
+    ]
+  }
+}

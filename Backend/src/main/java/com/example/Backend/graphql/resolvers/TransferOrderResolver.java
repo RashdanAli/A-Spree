@@ -13,6 +13,7 @@ import org.springframework.graphql.data.method.annotation.BatchMapping;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
+import com.example.Backend.services.TransferOrderService;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -33,6 +34,9 @@ public class TransferOrderResolver {
     @Autowired
     private WarehouseRepository warehouseRepository;
 
+    @Autowired
+    private TransferOrderService transferOrderService;
+
     @QueryMapping
     public TransferOrder transferOrder(@Argument String id) {
         return transferOrderRepository.findById(id).orElse(null);
@@ -40,34 +44,37 @@ public class TransferOrderResolver {
 
     @QueryMapping
     public List<TransferOrder> transferOrders(
-            @Argument String status,
+            @Argument TransferOrderStatus status,
             @Argument String branchId,
             @Argument String warehouseId) {
 
         if (status != null) {
-            TransferOrderStatus s = TransferOrderStatus.valueOf(status);
-            if (branchId != null) return transferOrderRepository.findByBranchIdAndStatus(branchId, s);
-            if (warehouseId != null) return transferOrderRepository.findByWarehouseIdAndStatus(warehouseId, s);
-            return transferOrderRepository.findByStatus(s);
+            if (branchId != null)
+                return transferOrderRepository.findByBranchIdAndStatus(branchId, status);
+            if (warehouseId != null)
+                return transferOrderRepository.findByWarehouseIdAndStatus(warehouseId, status);
+            return transferOrderRepository.findByStatus(status);
         }
-        if (branchId != null) return transferOrderRepository.findByBranchId(branchId);
-        if (warehouseId != null) return transferOrderRepository.findByWarehouseId(warehouseId);
+        if (branchId != null)
+            return transferOrderRepository.findByBranchId(branchId);
+        if (warehouseId != null)
+            return transferOrderRepository.findByWarehouseId(warehouseId);
         return Collections.emptyList();
     }
 
     @MutationMapping
     public TransferOrder createTransferOrder(@Argument Map<String, Object> input) {
-        return null;
+        return transferOrderService.createTransferOrder(input);
     }
 
     @MutationMapping
     public TransferOrder dispatchTransferOrder(@Argument String id) {
-        return null;
+        return transferOrderService.dispatchTransferOrder(id);
     }
 
     @MutationMapping
     public TransferOrder receiveTransferOrder(@Argument String id) {
-        return null;
+        return transferOrderService.receiveTransferOrder(id);
     }
 
     // DataLoader: resolves TransferOrder.branch for a list of orders in one query
@@ -88,7 +95,8 @@ public class TransferOrderResolver {
         return result;
     }
 
-    // DataLoader: resolves TransferOrder.warehouse for a list of orders in one query
+    // DataLoader: resolves TransferOrder.warehouse for a list of orders in one
+    // query
     @BatchMapping
     public Map<TransferOrder, Warehouse> warehouse(List<TransferOrder> orders) {
         List<String> ids = orders.stream()
